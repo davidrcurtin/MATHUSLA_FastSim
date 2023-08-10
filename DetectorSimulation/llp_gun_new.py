@@ -7,6 +7,8 @@ from typing import Union
 
 import numpy as np
 
+## change paths as need be
+
 
 # particle ID -> mass
 # feel free to add in more particles if need be
@@ -24,8 +26,7 @@ def get_llp(mode: str, mass: float, decay_position: tuple, boost: float, decay_t
     :param mode: leptonic2body or hadronic
     :param decay_position: decay position of the llp
     :param boost: b = p/m, where beta = b/np.sqrt(b**2 + 1)
-    :param decay_to: (optional) list of PIDs of decay products in leptonic 2-body/3-body decays or specific decay tag (in case of 
-                     SMS, take a look below and at function hadronic_SMS) or None (for all other empty decays)
+    :param decay_to: (optional) list of PIDs of decay products (in case of leptonic 2-body/3-body decays) or path to hadronic 4-vector    decay file (in case of hadronic decays)
     :return: a llp vertex
     """
     # create an llp at IP
@@ -33,16 +34,8 @@ def get_llp(mode: str, mass: float, decay_position: tuple, boost: float, decay_t
         llp = leptonic_3_body(mass, PARTICLES[decay_to[0]], PARTICLES[decay_to[1]], PARTICLES[decay_to[2]], decay_to)
     elif mode == "leptonic2body":
         llp = leptonic_2_body(mass, PARTICLES[decay_to[0]], PARTICLES[decay_to[1]], decay_to)
-    elif mode == "hadronic_RHN_Ue":
-        llp = hadronic_RHN_Ue(mass)
-    elif mode == "hadronic_RHN_Umu":
-        llp = hadronic_RHN_Umu(mass)
-    elif mode == "hadronic_RHN_Utau":
-        llp = hadronic_RHN_Utau(mass)
-    elif mode == "hadronic_SMS":
-        llp = hadronic_SMS(mass, decay_to)
-    else: # mode == "hadronic_HXX"
-        llp = hadronic_HXX(mass)
+    else: # mode == "hadronic"
+        llp = hadronic(mass, decay_to)
     if llp is None:
         return None
     else:
@@ -52,6 +45,7 @@ def get_llp(mode: str, mass: float, decay_position: tuple, boost: float, decay_t
   
         return new_llp
 
+#### Leptonic 2-Body ###
 
 def leptonic_2_body(mass: float, m1: float, m2: float, decay_product: list): # for generic daughters
     """
@@ -72,25 +66,6 @@ def leptonic_2_body(mass: float, m1: float, m2: float, decay_product: list): # f
     decay_2 = Particle(Detector.IP, p_decay_2, decay_product[1])
     # this makes a vertex at the origin
     return Vertex(Detector.IP, (mass, 0, 0, 0), 11111, [decay_1, decay_2])
-
-## same function as above, just with decay product masses equal
-# def leptonic_2_body(mass: float, decay_product) -> Vertex:
-#     """
-
-#     :param mass: mass of the parent llp
-#     :param decay_product: PID of the decay products
-#     :return:
-#     """
-#     E_decay = mass / 2
-#     p_norm = np.sqrt(E_decay**2 - PARTICLES[decay_product]**2)
-#     phi = np.random.uniform(0, 2*np.pi)
-#     theta = np.arccos(2*np.random.uniform(0, 1) - 1)
-#     p_decay_1 = (E_decay, p_norm*np.sin(theta)*np.cos(phi), p_norm*np.sin(theta)*np.sin(phi), p_norm*np.cos(theta))
-#     p_decay_2 = (E_decay, -p_norm*np.sin(theta)*np.cos(phi), -p_norm*np.sin(theta)*np.sin(phi), -p_norm*np.cos(theta))
-#     decay_1 = Particle(Detector.IP, p_decay_1, decay_product)
-#     decay_2 = Particle(Detector.IP, p_decay_2, decay_product)
-#     # this makes a vertex at the origin
-#     return Vertex(Detector.IP, (mass, 0, 0, 0), 11111, [decay_1, decay_2])
 
 
 #### Leptonic 3-Body ###
@@ -150,117 +125,17 @@ def leptonic_3_body(m, m1, m2, m3, pid, n=1):
 
     return Vertex(Detector.IP, (m, 0, 0, 0), 11111, [decay_1, decay_2, decay_3])
 
-#### hadronic functions #####
-## These hadronic functions are almost the same but were separated into different functions for ease of use with the 
-## different LLP analyses - but should be very easy to update them for any new analysis that need be done
 
-########################## RHN_Ue #####################################################################
+#### Hadronic ###
 
-def hadronic_RHN_Ue(mass: float) -> Vertex:
+# path is filepath to hadronic decay 4-vectors (comes from the decay_to argument to get_llp function)
+def hadronic(mass: float, path:str) -> Vertex:
     llp_file_mass = mass
-    if llp_file_mass not in hadronic_decay: # each mass has a unique file so all good!
-        if 0.42 <= llp_file_mass < 0.5:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Ue_hadronic_decays/vN_Ntoall_lightfonly_" + str(mass)+ ".txt"
-        elif 0.5 <= llp_file_mass < 0.99:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Ue_hadronic_decays/vN_Ntoall_nocharmnoss_" + str(mass)+ ".txt"
-        elif 0.99 <= llp_file_mass < 1.871:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Ue_hadronic_decays/vN_Ntoall_nocharm_" + str(mass)+ ".txt"
-        elif 1.871 <= llp_file_mass < 1.97:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Ue_hadronic_decays/vN_Ntoall_inclD_" + str(mass) + ".txt"
-        elif 1.97 <= llp_file_mass < 3.74:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Ue_hadronic_decays/vN_Ntoall_inclDs_" + str(mass) + ".txt"
-        else: # m > 3.74
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Ue_hadronic_decays/vN_Ntoall_inclDD_" + str(mass) + ".txt"
+    if (llp_file_mass, path) not in hadronic_decay: # store file by mass and decay product type i.e (llp_file_mass, path) as path is an identifier for the type of hadronic decay (e.g. might have different possible hadronic decays depending on mass etc.)
+        hadronic_decay[(llp_file_mass, path)] = [load_llp_file(path, -1), 0]
         
-        hadronic_decay[llp_file_mass] = [load_llp_file(path, -1), 0]
-        
-    i = hadronic_decay[llp_file_mass][1] % len(hadronic_decay[llp_file_mass][0])
-    hadronic_decay[llp_file_mass][1] += 1
+    i = hadronic_decay[(llp_file_mass, path)][1] % len(hadronic_decay[(llp_file_mass, path)][0])
+    hadronic_decay[(llp_file_mass, path)][1] += 1
     
     # this returns a vertex at the origin
-    return allocate_llp_data(hadronic_decay[llp_file_mass][0][i], Detector.IP)
-
-
-########################## RHN_Umu #####################################################################
-
-def hadronic_RHN_Umu(mass: float) -> Vertex:
-    llp_file_mass = mass
-    if llp_file_mass not in hadronic_decay: # each mass has a unique file so all good!
-        if 0.53 <= llp_file_mass <= 0.6:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Umu_hadronic_decays/vN_Ntoall_lightfonly_" + str(mass)+ ".txt"
-        elif 0.6 < llp_file_mass <= 0.99:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Umu_hadronic_decays/vN_Ntoall_nocharmnoss_" + str(mass)+ ".txt"
-        elif 0.99 < llp_file_mass <= 1.98:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Umu_hadronic_decays/vN_Ntoall_nocharm_" + str(mass)+ ".txt"
-        elif 1.98 < llp_file_mass < 2.08:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Umu_hadronic_decays/vN_Ntoall_inclD_" + str(mass) + ".txt"
-        elif 2.08 <= llp_file_mass < 3.75:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Umu_hadronic_decays/vN_Ntoall_inclDs_" + str(mass) + ".txt"
-        else: # m > 3.74
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Umu_hadronic_decays/vN_Ntoall_inclDD_" + str(mass) + ".txt"
-        
-        hadronic_decay[llp_file_mass] = [load_llp_file(path, -1), 0]
-        
-    i = hadronic_decay[llp_file_mass][1] % len(hadronic_decay[llp_file_mass][0])
-    hadronic_decay[llp_file_mass][1] += 1
-    
-    # this returns a vertex at the origin
-    return allocate_llp_data(hadronic_decay[llp_file_mass][0][i], Detector.IP)
-
-    
-########################## RHN_Utau #####################################################################
-
-def hadronic_RHN_Utau(mass: float) -> Vertex:
-    llp_file_mass = mass
-    if llp_file_mass not in hadronic_decay: # each mass has a unique file so all good!
-        if 0.42 <= llp_file_mass < 0.99:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Utau_hadronic_decays/vN_Ntoall_lightfonly_" + str(mass)+ ".txt"
-        elif 0.99 <= llp_file_mass < 1.92:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Utau_hadronic_decays/vN_Ntoall_lightfsonly_" + str(mass)+ ".txt"
-        elif 1.92 <= llp_file_mass < 2.28:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Utau_hadronic_decays/vN_Ntoall_lightfstau_" + str(mass)+ ".txt"
-        elif 2.28 <= llp_file_mass < 3.65:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Utau_hadronic_decays/vN_Ntoall_lightfstauK_" + str(mass) + ".txt"
-        elif 3.65 <= llp_file_mass < 3.75:
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Utau_hadronic_decays/vN_Ntoall_lightfstauD_" + str(mass) + ".txt"
-        else: # m > 3.75
-            path = "/Users/jai/Desktop/MATHUSLA_TOTAL/RHN_Utau_hadronic_decays/vN_Ntoall_lightfstauDD_" + str(mass) + ".txt"
-        
-        hadronic_decay[llp_file_mass] = [load_llp_file(path, -1), 0]
-        
-    i = hadronic_decay[llp_file_mass][1] % len(hadronic_decay[llp_file_mass][0])
-    hadronic_decay[llp_file_mass][1] += 1
-    
-    # this returns a vertex at the origin
-    return allocate_llp_data(hadronic_decay[llp_file_mass][0][i], Detector.IP)
-
-
-########################## SMS #####################################################################
-
-def hadronic_SMS(mass: float, particle: str) -> Vertex: # particle is the particle that "hadronizes"
-    llp_file_mass = mass
-    if (llp_file_mass, particle) not in hadronic_decay:
-        path = "/Users/jai/Desktop/MATHUSLA_TOTAL/SMS_LLP_decays/" + particle + "_" + str(mass) + ".txt"
-        hadronic_decay[(llp_file_mass, particle)] = [load_llp_file(path, -1), 0]
-    i = hadronic_decay[(llp_file_mass, particle)][1] % len(hadronic_decay[(llp_file_mass, particle)][0])
-    hadronic_decay[(llp_file_mass, particle)][1] += 1
-    
-    # this returns a vertex at the origin
-    return allocate_llp_data(hadronic_decay[(llp_file_mass, particle)][0][i], Detector.IP)
-
-########################### HXX ######################################################################
-
-def hadronic_HXX(mass: float) -> Vertex:
-    if mass > 55:
-        llp_file_mass = "55"
-    else:
-        llp_file_mass = str(int(5 * (mass//5)))
-    if llp_file_mass not in hadronic_decay:
-        path = os.path.join("/Users/jai/Desktop/H_hadronic_decays/bb_" + str(int(mass)) + ".txt")
-        hadronic_decay[llp_file_mass] = [load_llp_file(path, -1), 0]
-    i = hadronic_decay[llp_file_mass][1] % len(hadronic_decay[llp_file_mass][0])
-    hadronic_decay[llp_file_mass][1] += 1
-    # this returns a vertex at the origin
-    return allocate_llp_data(hadronic_decay[llp_file_mass][0][i], Detector.IP)
-
-
+    return allocate_llp_data(hadronic_decay[(llp_file_mass, path)][0][i], Detector.IP)
