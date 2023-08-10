@@ -82,7 +82,7 @@ def allocate_llp_data(data: list, position=(0, 0, 0)) -> Vertex:
         # for llp is in rest frame, fv is (mllp, 0, 0, 0)
         vertex = Vertex(position, (vertex_param[4],0,0,0), int(vertex_param[5]), particles, vertex_param[4])
         
-        ## next line is only if llp NOT in rest frame
+        ## next line is only if llp NOT in rest frame (when being read in from file)
 #         vertex = Vertex(position, (vertex_param[3],)+vertex_param[:3], int(vertex_param[5]), particles, vertex_param[4])
         
         return vertex

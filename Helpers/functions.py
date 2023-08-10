@@ -4,6 +4,7 @@
 import numpy as np
 import math
 import random
+import itertools
 from typing import List,Optional
 import DetectorSimulation.Detector as Detector
 import DetectorSimulation.Particle as Particle
@@ -81,6 +82,37 @@ def deal_with_phi(four_p: List[float], phi_min: float, phi_max: float) -> List[f
     new_4p = np.array([four_p[0], p_rot[0], p_rot[1], p_rot[2]])
 
     return new_4p
+
+
+#############################################################################################
+
+# function that finds max min angles OF THE DECAY VOLUME (note its not the detector volume!) 
+def get_detector_angles(detector_benchmark: Detector.Detector) -> tuple:
+    
+    x = np.array([detector_benchmark.config.decay_x_min, detector_benchmark.config.decay_x_max])
+    y = np.array([detector_benchmark.config.decay_y_min, detector_benchmark.config.decay_y_max])
+    z = np.array([detector_benchmark.config.decay_z_min, detector_benchmark.config.decay_z_max])
+
+    corners = np.array(np.meshgrid(x, y, z)).T.reshape(-1,3)
+    points = corners.copy()
+
+    detector_theta = []
+    detector_phi = []
+
+    # for efficiency, randomly generate 100 points lying in/on the detector and take min,max angles from these
+    # -- ends up giving the (almost) actual min, max (using Central Limit Theorem)
+    for j in itertools.product(corners, corners):
+        for k in range(100):
+            u = random.uniform(0,1)
+            new = u * j[0] + (1-u) * j[1]
+            detector_theta.append(get_theta(new))
+            detector_phi.append(get_phi(new))
+
+    theta_min, theta_max = min(detector_theta), max(detector_theta)
+    phi_min, phi_max = min(detector_phi), max(detector_phi)
+    
+    return (phi_min, phi_max, theta_min, theta_max)
+
 
 #############################################################################################
 

@@ -15,6 +15,7 @@ class Particle:
                 position: list [x, y, z]
                 momentum: list [E, px, py, pz]
                 pid: particle by PDG code
+                mass: mass of particle, optional to input as can be set using 4-vector also
         """
         # Check input validity
         assert len(position) == 3, "Wrong position input"
