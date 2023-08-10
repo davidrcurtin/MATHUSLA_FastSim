@@ -1,6 +1,6 @@
-# MATHUSLA FastSim
+# MATHUSLA FastSim v1, 10 Aug 2023
 
-This is the public repository for the MATHUSLA FastSim.
+This is the public repository for the MATHUSLA FastSim, as introduced in the paper "Long Lived Particle Decays in MATHUSLA" by David Curtin and Jaipratap Singh Grewal
 
 NOTES:
 
