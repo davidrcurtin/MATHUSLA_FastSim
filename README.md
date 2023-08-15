@@ -9,13 +9,26 @@ This is the public repository for the MATHUSLA FastSim, as introduced in the pap
 
 NOTES:
 
-Please read Section III of the paper and work through the "DEMO" file for details about the code.
+Please read Section III of 2308.05860 and look through the "DEMO" file for details about the code.
 
 
 
 CITATION:
 
 please cite the above paper, as well as this code separately:
+
+
+    @article{Curtin:2023skh,
+        author = "Curtin, David and Grewal, Jaipratap Singh",
+        title = "{Long Lived Particle Decays in MATHUSLA}",
+        eprint = "2308.05860",
+        archivePrefix = "arXiv",
+        primaryClass = "hep-ph",
+        month = "8",
+        year = "2023"
+    }
+
+
 
     @misc{MATHUSLAFastSim,
         author = "Cui, Wentao and Curtin, David and Luo, Lillian and Grewal, Jaipratap Singh",
