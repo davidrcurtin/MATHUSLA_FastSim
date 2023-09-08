@@ -1,6 +1,6 @@
 # MATHUSLA FastSim v1, 10 Aug 2023
 
-Code by Wentao Cui, David Curtin, Lillian Luo, Jaipratap Singh Grewal
+Code by Wentao Cui, David Curtin, Jaipratap Singh Grewal, Lillian Luo
 
 For questions, contact David Curtin (dcurtin@physics.utoronto.ca)
 
