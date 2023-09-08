@@ -31,7 +31,7 @@ please cite the above paper, as well as this code separately:
 
 
     @misc{MATHUSLAFastSim,
-        author = "Cui, Wentao and Curtin, David and Luo, Lillian and Grewal, Jaipratap Singh",
+        author = "Cui, Wentao and Curtin, David and Grewal, Jaipratap Singh and Luo, Lillian",
         title = "{\texttt{MATHUSLA FastSim}}",  
         version   = {1.0},    
         publisher = {Zenodo},    
